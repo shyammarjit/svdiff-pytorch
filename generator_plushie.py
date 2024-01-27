@@ -24,12 +24,11 @@ MODEL_NAME="runwayml/stable-diffusion-v1-5"
 
 #====================================================================
 ## Please change this one only.
-spectral_shifts_ckpt = "/home/shyam/svdiff_output/dog"
-output_folder_path = "./output/dog"
+spectral_shifts_ckpt = "/home/shyam/svdiff_output/tortoise_plushy"
+output_folder_path = "./output/tortoise_plushy"
 seeds = [1, 2, 3]
-prompts = ["A sks dog at a beach with a view of seashore",
-"Painting of sks dog at a beach by artist Claude Monet",
-"A sks dog in construction outfit"]
+prompts = ['A backpack in the style of a sks tortoise plushy', 
+'A photo of a sks tortoise plushy swimming in pool']
 #====================================================================
 
 

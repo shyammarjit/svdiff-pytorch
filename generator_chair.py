@@ -5,9 +5,11 @@ import requests
 import PIL
 import torch
 from torch import autocast
-# import huggingface_hub
+import random
+from tqdm import tqdm
 from transformers import CLIPTextModel
 from diffusers import (
+    AutoencoderKL,
     LMSDiscreteScheduler,
     DDIMScheduler,
     PNDMScheduler,
@@ -17,9 +19,17 @@ from diffusers import (
     StableDiffusionPipeline
 )
 from PIL import Image
-# sys.path.append("/content/svdiff-pytorch")
 from svdiff_pytorch import load_unet_for_svdiff, load_text_encoder_for_svdiff, SCHEDULER_MAPPING, image_grid
 MODEL_NAME="runwayml/stable-diffusion-v1-5"
+
+#====================================================================
+## Please change this one only.
+spectral_shifts_ckpt = "/home/shyam/svdiff_output/chair"
+output_folder_path = "./output/chair"
+seeds = [1, 2, 3]
+prompts = ["A photo of Floor lamp on the side of a sks chair", "A sks chair near a pool"]
+#====================================================================
+
 
 def load_text_encoder(pretrained_model_name_or_path, spectral_shifts_ckpt, device, fp16=False):
     if os.path.isdir(spectral_shifts_ckpt):
@@ -46,11 +56,6 @@ def load_text_encoder(pretrained_model_name_or_path, spectral_shifts_ckpt, devic
         text_encoder = text_encoder.to(device, dtype=torch.float16)
     return text_encoder
 
-# @markdown **Load model:**
-import sys
-from diffusers import AutoencoderKL
-
-spectral_shifts_ckpt = "/home/shyam/svdiff_output" #@param {type:"string"}
 scheduler_type = "dpm_solver++" #@param ["ddim", "plms", "lms", "euler", "euler_ancestral", "dpm_solver++"]
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -83,18 +88,11 @@ pipe = StableDiffusionPipeline.from_pretrained(
 pipe = pipe.to(device)
 print("loaded pipeline")
 
-# @markdown **Run!:**
-# @markdown <br> *It takes time at the 1st run because SVD is performed.
-import random
-from tqdm import tqdm
-
-prompt = "A sks plushie on a skateboard in times square" #@param {type:"string"}
 num_images_per_prompt = 2 # @param {type: "integer"}
 guidance_scale = 7.5 # @param {type: "number"}
 num_inference_steps = 25 # @param {type: "integer"}
 height = 512 # @param {type: "integer"}
 width = 512 # @param {type: "integer"}
-seed = "random_seed" #@param {type:"string"}
 spectral_shifts_scale = 1.0 #@param {type: "number"}
 
 
@@ -108,28 +106,24 @@ if pipe.unet.conv_out.scale != spectral_shifts_scale:
   print(f"Set spectral_shifts_scale to {spectral_shifts_scale}!")
 
 
-if seed == "random_seed":
-  random.seed()
-  seed = random.randint(0, 2**32)
-else:
-  seed = int(seed)
-g_cuda = torch.Generator(device='cuda').manual_seed(seed)
-print(f"seed: {seed}")
+if not os.path.isdir(output_folder_path):
+    os.mkdir(output_folder_path)
 
-prompts = prompt.split("::")
 all_images = []
 for prompt in tqdm(prompts):
-    with torch.autocast(device), torch.inference_mode():
-        images = pipe(
-            prompt,
-            num_inference_steps=num_inference_steps,
-            guidance_scale=guidance_scale,
-            num_images_per_prompt=num_images_per_prompt,
-            height=height,
-            width=width,
-            generator=g_cuda
-        ).images
-    all_images.extend(images)
-grid_image = image_grid(all_images, len(prompts), num_images_per_prompt)
-
-grid_image.save("grid_image.png")
+    if type(seeds)==int:
+        seeds = [seeds]
+    for seed in seeds:
+        g_cuda = torch.Generator(device='cuda').manual_seed(seed)
+        print(f"{prompt}")
+        print(f"seed: {seed}")
+        with torch.autocast(device), torch.inference_mode():
+            images = pipe(
+                prompt,
+                num_inference_steps=num_inference_steps,
+                guidance_scale=guidance_scale,
+                height=height,
+                width=width,
+                generator=g_cuda
+            ).images
+        images[0].save(os.path.join(output_folder_path, f"{seed}. {prompt}.png"))

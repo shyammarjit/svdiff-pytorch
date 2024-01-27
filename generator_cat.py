@@ -24,11 +24,10 @@ MODEL_NAME="runwayml/stable-diffusion-v1-5"
 
 #====================================================================
 ## Please change this one only.
-spectral_shifts_ckpt = "/home/shyam/svdiff_output/dog"
+spectral_shifts_ckpt = "/home/shyam/svdiff_output/cat"
+output_folder_path = "./output/cat"
 seeds = [1, 2, 3]
-prompts = ["A sks dog at a beach with a view of seashore",
-"Painting of sks dog at a beach by artist Claude Monet",
-"A sks dog in construction outfit"]
+prompts = ['A sks cat at a beach with a view of seashore', 'A photo of sks cat']
 #====================================================================
 
 
@@ -107,6 +106,9 @@ if pipe.unet.conv_out.scale != spectral_shifts_scale:
   print(f"Set spectral_shifts_scale to {spectral_shifts_scale}!")
 
 
+if not os.path.isdir(output_folder_path):
+    os.mkdir(output_folder_path)
+
 all_images = []
 for prompt in tqdm(prompts):
     if type(seeds)==int:
@@ -124,4 +126,4 @@ for prompt in tqdm(prompts):
                 width=width,
                 generator=g_cuda
             ).images
-        images[0].save(f"{seed}. {prompt}.png")
+        images[0].save(os.path.join(output_folder_path, f"{seed}. {prompt}.png"))
