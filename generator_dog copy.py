@@ -25,7 +25,7 @@ MODEL_NAME="runwayml/stable-diffusion-v1-5"
 #====================================================================
 ## Please change this one only.
 spectral_shifts_ckpt = "/home/shyam/svdiff_output/dog"
-seed = [1, 2, 3]
+seeds = [1, 2, 3]
 prompts = ["A sks dog at a beach with a view of seashore",
 "Painting of sks dog at a beach by artist Claude Monet",
 "A sks dog in construction outfit"]
@@ -109,12 +109,12 @@ if pipe.unet.conv_out.scale != spectral_shifts_scale:
 
 all_images = []
 for prompt in tqdm(prompts):
-    if type(seed)==int:
-        seed = [seed]
-    for seed_ in seed:
-        g_cuda = torch.Generator(device='cuda').manual_seed(seed_)
+    if type(seeds)==int:
+        seeds = [seeds]
+    for seed in seeds:
+        g_cuda = torch.Generator(device='cuda').manual_seed(seed)
         print(f"{prompt}")
-        print(f"seed: {seed_}")
+        print(f"seed: {seed}")
         with torch.autocast(device), torch.inference_mode():
             images = pipe(
                 prompt,
@@ -124,4 +124,4 @@ for prompt in tqdm(prompts):
                 width=width,
                 generator=g_cuda
             ).images
-        images[0].save(f"{seed_}. {prompt}.png")
+        images[0].save(f"{seed}. {prompt}.png")
