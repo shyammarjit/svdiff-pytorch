@@ -27,7 +27,7 @@ MODEL_NAME="runwayml/stable-diffusion-v1-5"
 spectral_shifts_ckpt = "/home/shyam/svdiff_output/dog"
 output_folder_path = "./output/dog"
 seeds = [1, 2, 3]
-prompts = ["A sks dog at a beach with a view of seashore",
+prompts = ["A sks dog in front of Times Square", 
 "Painting of sks dog at a beach by artist Claude Monet",
 "A sks dog in construction outfit"]
 #====================================================================
