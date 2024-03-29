@@ -21,14 +21,26 @@ from diffusers import (
 from PIL import Image
 from svdiff_pytorch import load_unet_for_svdiff, load_text_encoder_for_svdiff, SCHEDULER_MAPPING, image_grid
 MODEL_NAME="runwayml/stable-diffusion-v1-5"
+from prompts import *
 
+import argparse
+parser = argparse.ArgumentParser(description="Simple example of a training script.")
+parser.add_argument(
+        "--subject",
+        type=str,
+        default=None,
+        required=True,
+        help="The prompt with identifier specifying the instance",
+    )
+args = parser.parse_args()
 #====================================================================
 ## Please change this one only.
-spectral_shifts_ckpt = "/home/shyam/svdiff_output_rank/cat"
-output_folder_path = "./output_rank_new/cat"
-# seeds = [1, 2, 3]
-seeds=1
-prompts = ['A sks cat on top of a purple rug in a forest', 'A sks cat on a cobblestone street']
+prompts = globals()[args.subject] # string to variable converter
+# /home/shyam/svdiff-pytorch/svdiff_output/cat/checkpoint-500
+spectral_shifts_ckpt = f"/home/shyam/svdiff-pytorch/svdiff_output/{args.subject}/checkpoint-500"
+output_folder_path = f"/home/shyam/svdiff-pytorch/svdiff_output/{args.subject}/checkpoint-500"
+seeds = [1]
+print(prompts)
 #====================================================================
 
 
@@ -127,4 +139,7 @@ for prompt in tqdm(prompts):
                 width=width,
                 generator=g_cuda
             ).images
-        images[0].save(os.path.join(output_folder_path, f"{seed}. {prompt}.png"))
+        images[0].save(os.path.join(output_folder_path, f"{prompt}.png"))
+
+
+
