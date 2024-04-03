@@ -178,7 +178,7 @@ for subject in subjects:
     CLIPI.append(clipi[0])
     CLIPT.append(clipt[0])
     DINO_.append(dino[0])
-    print(f"subject: {clipi}, {clipt}, {dino}")
+    print(f"{subject}: {clipi}, {clipt}, {dino}")
 
 print(np.mean(CLIPI), np.std(CLIPI))
 print(np.mean(CLIPT), np.std(CLIPT))
